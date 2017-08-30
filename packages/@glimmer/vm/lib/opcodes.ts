@@ -440,6 +440,7 @@ export const enum Op {
    *   ..., →
    *   ..., SymbolTable
    */
+  PushScope,
   PushSymbolTable,
 
   /**

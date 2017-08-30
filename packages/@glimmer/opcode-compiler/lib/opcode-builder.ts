@@ -876,7 +876,12 @@ export abstract class OpcodeBuilder<Specifier> {
     }
   }
 
+  pushScope(): void {
+    this.push(Op.PushScope);
+  }
+
   pushYieldableBlock(block: Option<CompilableBlock>): void {
+    this.pushScope();
     this.pushSymbolTable(block && block.symbolTable);
     this.pushBlock(block);
   }

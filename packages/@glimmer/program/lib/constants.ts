@@ -30,6 +30,42 @@ export class WriteOnlyConstants implements CompileTimeConstants {
   protected resolved: Opaque[] = [];
   protected floats: number[] = [];
 
+  getFloat(value: number): number {
+    return this.floats[value - 1];
+  }
+
+  getString(value: number): string {
+    return this.strings[value - 1];
+  }
+
+  getStringArray(value: number): string[] {
+    let names = this.getArray(value);
+    let _names: string[] = new Array(names.length);
+
+    for (let i = 0; i < names.length; i++) {
+      let n = names[i];
+      _names[i] = this.getString(n);
+    }
+
+    return _names;
+  }
+
+  getArray(value: number): number[] {
+    return this.arrays[value - 1];
+  }
+
+  getSymbolTable<T extends SymbolTable>(value: number): T {
+    return this.tables[value - 1] as T;
+  }
+
+  resolveHandle(value: number) {
+    return this.handles[value]
+  }
+
+  getSerializable<T>(s: number): T {
+    return this.serializables[s - 1] as T;
+  }
+
   float(float: number) {
     let index = this.floats.length;
     this.floats.push(float);

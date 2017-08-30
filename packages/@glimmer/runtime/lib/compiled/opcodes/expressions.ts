@@ -1,7 +1,7 @@
 import { Opaque, Option, BlockSymbolTable } from '@glimmer/interfaces';
 import { VersionedPathReference } from '@glimmer/reference';
 import { Op } from '@glimmer/vm';
-import { Helper, ScopeBlock } from '../../environment';
+import { Helper, ScopeBlock, Scope } from '../../environment';
 import { APPEND_OPCODES } from '../../opcodes';
 import { FALSE_REFERENCE, TRUE_REFERENCE } from '../../references';
 import { PublicVM } from '../../vm';
@@ -35,12 +35,14 @@ APPEND_OPCODES.add(Op.SetVariable, (vm, { op1: symbol }) => {
 });
 
 APPEND_OPCODES.add(Op.SetBlock, (vm, { op1: symbol }) => {
+  console.log("Op.SetBlock");
   let handle = vm.stack.pop<Option<VMHandle>>();
   let table = vm.stack.pop<Option<BlockSymbolTable>>();
+  let scope = vm.stack.pop<Scope>();
 
   assert(table === null || (table && typeof table === 'object' && Array.isArray(table.parameters)), stackAssert('Option<BlockSymbolTable>', table));
 
-  let block: Option<ScopeBlock> = table ? [handle!, table] : null;
+  let block: Option<ScopeBlock> = table ? [handle!, table, scope] : null;
 
   vm.scope().bindBlock(symbol, block);
 });
@@ -72,9 +74,11 @@ APPEND_OPCODES.add(Op.GetBlock, (vm, { op1: _block }) => {
   let block = vm.scope().getBlock(_block);
 
   if (block) {
+    stack.push(block[2]);
     stack.push(block[1]);
     stack.push(block[0]);
   } else {
+    stack.push(null);
     stack.push(null);
     stack.push(null);
   }

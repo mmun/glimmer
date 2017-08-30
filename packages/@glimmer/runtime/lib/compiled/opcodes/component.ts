@@ -21,7 +21,7 @@ import {
   PublicComponentSpec
 } from '../../component/interfaces';
 import { normalizeStringValue } from '../../dom/normalize';
-import { DynamicScope, ScopeBlock, ScopeSlot } from '../../environment';
+import { DynamicScope, ScopeBlock, ScopeSlot, Scope } from '../../environment';
 import { APPEND_OPCODES, UpdatingOpcode } from '../../opcodes';
 import { UNDEFINED_REFERENCE } from '../../references';
 import { UpdatingVM, VM } from '../../vm';
@@ -426,10 +426,11 @@ APPEND_OPCODES.add(Op.InvokeComponentLayout, vm => {
       let symbol = symbols.indexOf(name);
       let handle = stack.pop<Option<VMHandle>>();
       let table = stack.pop<Option<BlockSymbolTable>>();
+      let blockScope = stack.pop<Scope>();
 
       assert(table === null || (table && typeof table === 'object' && Array.isArray(table.parameters)), stackAssert('Option<BlockSymbolTable>', table));
 
-      let block: Option<ScopeBlock> = table ? [handle!, table] : null;
+      let block: Option<ScopeBlock> = table ? [handle!, table, blockScope] : null;
 
       if (symbol !== -1) {
         scope.bindBlock(symbol + 1, block);

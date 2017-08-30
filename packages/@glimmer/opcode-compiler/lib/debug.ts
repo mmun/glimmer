@@ -88,12 +88,12 @@ export function debug(c: DebugConstants, op: Op, op1: number, op2: number, op3: 
       case Op.SetVariable: return ['SetVariable', { symbol: op1 }];
       case Op.SetBlock: return ['SetBlock', { symbol: op1 }];
       case Op.GetVariable: return ['GetVariable', { symbol: op1 }];
-      case Op.GetProperty: return ['GetProperty', { key: c.getString(op1) }];
+      case Op.GetProperty: return ['GetProperty', { key: op1 }];
       case Op.GetBlock: return ['GetBlock', { symbol: op1 }];
       case Op.HasBlock: return ['HasBlock', { block: op1 }];
       case Op.HasBlockParams: return ['HasBlockParams', { block: op1 }];
       case Op.Concat: return ['Concat', { size: op1 }];
-      case Op.Constant: return ['Constant', { value: (c as Recast<DebugConstants, LazyDebugConstants>).getOther(op1) }];
+      case Op.Constant: return ['Constant', { value: op1 }];
       case Op.Primitive: return ['Primitive', { primitive: op1 }];
       case Op.PrimitiveReference: return ['PrimitiveReference', {}];
       case Op.Dup: return ['Dup', { register: Register[op1], offset: op2 }];
@@ -135,6 +135,7 @@ export function debug(c: DebugConstants, op: Op, op1: number, op2: number, op3: 
 
       /// VM
       case Op.PushSymbolTable: return ['PushSymbolTable', { table: c.getSymbolTable(op1) }];
+      case Op.PushScope: return ['PushScope', {}];
       case Op.CompileBlock: return ['CompileBlock', {}];
       case Op.InvokeVirtual: return ['InvokeVirtual', {}];
       case Op.InvokeStatic: return ['InvokeStatic', { handle: op1 }];

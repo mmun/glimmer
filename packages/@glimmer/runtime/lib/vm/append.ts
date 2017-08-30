@@ -43,6 +43,8 @@ export class EvaluationStack {
   }
 
   push(value: Opaque): void {
+    console.log('push', value);
+    // debugger;
     this.stack[++this.sp] = value;
   }
 
@@ -52,6 +54,10 @@ export class EvaluationStack {
 
   pop<T>(n = 1): T {
     let top = this.stack[this.sp] as T;
+    if (n > 0) {
+      console.log("POP!", top);
+      // debugger;
+    }
     this.sp -= n;
     return top;
   }
@@ -384,6 +390,10 @@ export default class VM<Specifier> implements PublicVM {
     if (bindCaller) scope.bindCallerScope(this.scope());
     this.scopeStack.push(scope);
     return scope;
+  }
+
+  pushScope(scope: Scope) {
+    this.scopeStack.push(scope);
   }
 
   popScope() {

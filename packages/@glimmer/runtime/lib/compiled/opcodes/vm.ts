@@ -15,6 +15,7 @@ import { stackAssert } from './assert';
 import { APPEND_OPCODES, UpdatingOpcode } from '../../opcodes';
 import { Primitive, PrimitiveReference } from '../../references';
 import { CompilableTemplate } from '../../syntax/interfaces';
+import { Scope } from '../../environment';
 import { VM, UpdatingVM } from '../../vm';
 import { Arguments } from '../../vm/arguments';
 import { LazyConstants, PrimitiveType } from "@glimmer/program";
@@ -87,6 +88,11 @@ APPEND_OPCODES.add(Op.Enter, (vm, { op1: args }) => vm.enter(args));
 
 APPEND_OPCODES.add(Op.Exit, (vm) => vm.exit());
 
+APPEND_OPCODES.add(Op.PushScope, (vm) => {
+  let stack = vm.stack;
+  stack.push(vm.scope());
+});
+
 APPEND_OPCODES.add(Op.PushSymbolTable, (vm, { op1: _table }) => {
   let stack = vm.stack;
   stack.push(vm.constants.getSymbolTable(_table));
@@ -105,8 +111,10 @@ APPEND_OPCODES.add(Op.InvokeStatic, (vm, { op1: handle }) => vm.call(handle as R
 APPEND_OPCODES.add(Op.InvokeYield, vm => {
   let { stack } = vm;
 
+  console.log("invoking yield...");
   let handle = stack.pop<Option<VMHandle>>();
   let table = stack.pop<Option<BlockSymbolTable>>();
+  let blockScope = stack.pop<Scope>();
 
   assert(table === null || (table && typeof table === 'object' && Array.isArray(table.parameters)), stackAssert('Option<BlockSymbolTable>', table));
 
@@ -117,7 +125,7 @@ APPEND_OPCODES.add(Op.InvokeYield, vm => {
 
     // To balance the pop{Frame,Scope}
     vm.pushFrame();
-    vm.pushCallerScope();
+    vm.pushScope(blockScope);
 
     return;
   }
@@ -125,7 +133,7 @@ APPEND_OPCODES.add(Op.InvokeYield, vm => {
   let locals = table.parameters;
   let localsCount = locals.length;
 
-  vm.pushCallerScope(localsCount > 0);
+  vm.pushScope(blockScope.child());
 
   let scope = vm.scope();
 
